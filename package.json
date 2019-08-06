@@ -1,0 +1,19 @@
+{
+  "name": "backend-admin",
+  "version": "1.0.0",
+  "description": "Servidor Backend para proyecto Adminpro",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Julio Blancas",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.6.8"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
