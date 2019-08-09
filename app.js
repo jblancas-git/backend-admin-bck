@@ -1,6 +1,12 @@
-// declarar servidor express
+// Declaración de librerias
 var express     = require('express');
 var mongoose    = require('mongoose');
+var bodyParser  = require('body-parser');
+
+// Importar rutas
+var appRoutes = require('./routes/app.routes');
+var usrRoutes = require('./routes/usuario.routes');
+var loginRoutes = require('./routes/login.routes');
 
 
 // Inicializar Variables
@@ -8,20 +14,37 @@ var app = express();
 
 
 // Conexión a base de datos
-mongoose.connect('mongodb://localhost:27017/hospitalDB', {useNewUrlParser: true}, (err, res)=> {
-    if (err) throw err;
-
+mongoose.connect('mongodb://localhost:27017/hospitalDB', {useNewUrlParser: true, useCreateIndex: true}, 
+    (err)=> {
+        if (err) throw err;
     console.log('Base MongoDB hospitalDB: \x1b[36m%s\x1b[0m', 'online'); 
-});
+    }
+);
 
 
-// Definicion de Rutas
-app.get('/', (req, res) => {
-    res.status(200).json({
-        ok:true,
-        mensaje: "Petición Exitosa!."
-    });
-});
+//---------------------------------------
+// Configuración de Midlwares
+//---------------------------------------
+
+//---------Body parser ------------------------
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
+//---------END: Body parser -------------------
+
+
+
+//------------- Rutas -------------------
+app.use('/login', loginRoutes);
+app.use('/usuario', usrRoutes);
+app.use('/', appRoutes);
+
+
+//------------- END: Rutas --------------
+
+
+
 
 // Escucha de peticiones
 
