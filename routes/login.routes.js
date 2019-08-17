@@ -54,7 +54,7 @@ app.post('/', (req, res, next) => {
 
         // Si todo salio bien, Crear un Token.
         usuarioDB.password = ';)'; // limpiar password
-        var token = jwt.sign({ usuario: usuarioDB}, SEDDToken, { expiresIn: 14400});
+        var token = jwt.sign({ usuario: usuarioDB}, SEDDToken, { expiresIn: 86400});
 
         // En caso Correcto
         res.status(200).json({

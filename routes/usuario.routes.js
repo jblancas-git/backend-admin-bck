@@ -22,7 +22,12 @@ var Usuario = require('../models/usuario');
 //---------------------------------
 app.get('/', (req, res, next) => {
 
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
     Usuario.find({},'nombre email avatar role date_new date_upd')
+    .skip(desde)
+    .limit(5)
     .exec( 
         (err, usuariosDB) => {
             // En caso de error 
@@ -33,11 +38,16 @@ app.get('/', (req, res, next) => {
                     error: err
                 });
             }
-            // En caso Correcto
-            res.status(200).json({
-                ok:true,
-                usuarios: usuariosDB
+
+            Usuario.countDocuments({}, (err, conteo)=> {
+                // En caso Correcto
+                res.status(200).json({
+                    ok:true,
+                    usuarios: usuariosDB,
+                    total: conteo
+                });
             });
+            
         }
     );
 });
@@ -146,7 +156,7 @@ app.put('/:id', verifyToken, (req, res, next) => {
             if (err) {
                 return res.status(400).json({
                     ok:false,
-                    mensaje: 'Error buscar usuario!',
+                    mensaje: 'Error Guardar Usuario!',
                     error: err
                 });
             }
@@ -155,9 +165,9 @@ app.put('/:id', verifyToken, (req, res, next) => {
             modUsuario.password = ';)';
 
             // En caso Correcto | 201: Created
-            res.status(200).json({
+            res.status(201).json({
                 ok:true,
-                modUsuario
+                modUsuario: modUsuario
             });
         });
     });
@@ -190,7 +200,7 @@ app.delete('/:id', verifyToken, ( req, res, next) => {
             });
         }
 
-        // En caso Correcto | 201: Created
+        // En caso Correcto | 200: Created
         res.status(200).json({
             ok:true,
             delUsuario
