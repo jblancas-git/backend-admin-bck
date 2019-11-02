@@ -2,14 +2,13 @@
 var express = require('express');
 var app = express();
 
-var myPath = require('../configs/config').PATHFILE;
-
 // Libreria file system
 var fs = require('fs');
+
 // Libreria para subir archivos
 var fileUpload = require('express-fileupload');
 
-
+// Modelos
 var Usuario = require('../models/usuario');
 var Medico = require('../models/medico');
 var Hospital = require('../models/hospital');
@@ -22,8 +21,20 @@ app.use(fileUpload());
 // Definicion de Rutas
 app.put('/:tipo/:id', (req, res) => {
 
+    
     var id = req.params.id;
     var tipo = req.params.tipo;
+
+    // console.log('>>Parametros:', req.params );
+
+    /*
+    res.status(200).json({
+            ok:true,
+            mensaje: "Cargar Archivo!."
+    }); 
+    */
+
+
 
     // Validar si viene files
     if (!req.files) {
@@ -55,7 +66,9 @@ app.put('/:tipo/:id', (req, res) => {
     var myFileName = `${id}-${new Date().getMilliseconds()}.${archivoExt}`;
 
     // Generar el path
-    var filePath =  `uploads/${myFileName}`;
+    var filePath =  `uploads/${tipo}/${myFileName}`;
+
+    // console.log('>> File to upload:', filePath);
 
     archivo.mv( filePath, err => {
 
@@ -69,22 +82,25 @@ app.put('/:tipo/:id', (req, res) => {
         }
 
         updTipoColeccion(tipo, id, myFileName, res);
-
-        /* res.status(200).json({
-            ok:true,
-            mensaje: "Archivo Cargado!."
-        }); */
-    });
-
+    }); 
 });
 
-function updTipoColeccion(tipo, id, avatar, res ){
+function updTipoColeccion(tipo, id, img, res ){
 
     switch (tipo) {
         case 'usuarios':
+
             Usuario.findById(id, (err, usuarioDB) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok:false,
+                        mensaje: 'Error findByI Usuario',
+                        error: err
+                    });
+                }
                 // Obtener path de la imagen de 
-                var pathOld = `uploads/usuarios/${usuarioDB.avatar}`;
+                var pathOld = `/uploads/usuarios/${usuarioDB.img}`;
                 // Si existe la imagen 
                 if (fs.existsSync(pathOld)){
                     // la eliminamos
@@ -92,16 +108,24 @@ function updTipoColeccion(tipo, id, avatar, res ){
                 }
 
                 //Actualizamos el valor
-                usuarioDB.avatar = avatar;
+                usuarioDB.img = img;
 
-                usuarioDB.save( (err, usuarioUpd)=> {
-                    
+                usuarioDB.save( (err, usuarioUpd) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok:false,
+                            mensaje: 'Error save usuario',
+                            error: err
+                        });
+                    }
+
                     usuarioUpd.password =';)';
 
                     return res.status(200).json({
                         ok:true,
                         mensaje: 'Imagen de usuario actualiada!',
-                        usurio: usuarioUpd
+                        usuario: usuarioUpd
                     });
                 });
             });
@@ -118,7 +142,7 @@ function updTipoColeccion(tipo, id, avatar, res ){
                     }
     
                     //Actualizamos el valor
-                    medicoDB.avatar = avatar;
+                    medicoDB.img = img;
     
                     medicoDB.save( (err, medicoUpd)=> {
         

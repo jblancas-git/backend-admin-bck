@@ -14,7 +14,7 @@ var verifyToken = require('../middlewares/autenticacion').verifyToken;
 
 
 // importar Schema de usuarios
-var Usuario = require('../models/usuario');
+Usuario = require('../models/usuario');
 
 
 //---------------------------------
@@ -25,7 +25,7 @@ app.get('/', (req, res, next) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
-    Usuario.find({},'nombre email avatar role date_new date_upd')
+    Usuario.find({},'nombre email img role date_new date_upd')
     .skip(desde)
     .limit(5)
     .exec( 
@@ -83,8 +83,9 @@ app.get('/', (req, res, next) => {
 
 //---------------------------------
 // * Crear un nuevo usuario
+// --se desactiva verifyToken
 //---------------------------------
-app.post('/', verifyToken, (req, res, next) => {
+app.post('/', /*verifyToken,*/ (req, res, next) => {
 
     // Requiere libreria body-parser para obtener el post
     var body = req.body;
@@ -94,7 +95,7 @@ app.post('/', verifyToken, (req, res, next) => {
         nombre: body.nombre,
         email: body.email,
         password: bcrypt.hashSync(body.password, 10),
-        avatar: body.avatar,
+        img: body.img,
         role: body.role
     });
 
@@ -126,6 +127,8 @@ app.put('/:id', verifyToken, (req, res, next) => {
     var id = req.params.id;
     // Obtener body del put/post
     var body = req.body;
+
+    console.log('>>Body', body);
 
     Usuario.findById(id, (err, updUsuario) => {
         // En caso de error 
